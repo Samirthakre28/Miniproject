@@ -1,9 +1,15 @@
 import axios from 'axios'
 
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL
-const API_BASE_URL = (rawBaseUrl && rawBaseUrl.trim())
-  ? rawBaseUrl.trim().replace(/\/+$/, '')
-  : 'http://127.0.0.1:8000'
+const formatBaseUrl = (url) => {
+  if (!url || !url.trim()) return 'http://127.0.0.1:8000'
+  let cleaned = url.trim().replace(/\/+$/, '')
+  if (!/^https?:\/\//i.test(cleaned)) {
+    cleaned = `https://${cleaned}`
+  }
+  return cleaned
+}
+const API_BASE_URL = formatBaseUrl(rawBaseUrl)
 
 const api = axios.create({
   baseURL: API_BASE_URL,

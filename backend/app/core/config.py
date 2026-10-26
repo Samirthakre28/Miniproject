@@ -15,17 +15,24 @@ DEFAULT_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
-# Read optional configured FRONTEND_URL or CORS_ORIGINS from environment variable
+# Read optional configured FRONTEND_URL or CORS_ORIGINS from environment variables
 # Supports single URL or multiple comma-separated URLs (e.g. "https://app.vercel.app,https://staging.vercel.app")
-_frontend_env = os.getenv("FRONTEND_URL", os.getenv("CORS_ORIGINS", "")).strip()
+_frontend_env = (os.getenv("FRONTEND_URL") or os.getenv("CORS_ORIGINS") or "").strip()
 if _frontend_env:
-    # Normalize each origin by stripping whitespace and trailing slashes
+    # Normalize each origin by stripping whitespace, quotes, and trailing slashes
     _configured_origins = [
-        url.strip().rstrip("/")
+        url.strip().strip("'\"").rstrip("/")
         for url in _frontend_env.split(",")
-        if url.strip()
+        if url.strip().strip("'\"")
     ]
-    ORIGINS = list(dict.fromkeys(DEFAULT_ORIGINS + _configured_origins))
+    if "*" in _configured_origins:
+        ORIGINS = ["*"]
+    else:
+        ORIGINS = list(dict.fromkeys(DEFAULT_ORIGINS + _configured_origins))
 else:
     ORIGINS = DEFAULT_ORIGINS
+
+# CORS regex pattern to allow all Vercel production and preview deployment domains (*.vercel.app)
+# Can be explicitly overridden or customized via CORS_ORIGIN_REGEX environment variable
+ORIGIN_REGEX = os.getenv("CORS_ORIGIN_REGEX", r"^https:\/\/.*\.vercel\.app$")
 

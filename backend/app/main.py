@@ -11,7 +11,7 @@ _BACKEND_DIR = Path(__file__).resolve().parent.parent
 if str(_BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(_BACKEND_DIR))
 
-from app.core.config import PROJECT_NAME, ORIGINS, API_V1_STR
+from app.core.config import PROJECT_NAME, ORIGINS, ORIGIN_REGEX, API_V1_STR
 from app.api.routes import router as api_router
 from ml.predict import get_predictor
 
@@ -46,6 +46,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ORIGINS,
+    allow_origin_regex=ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
